@@ -141,7 +141,7 @@
     \def\gt{>}
     \def\lt{<}
     % Document parameters
-    \title{NetWithNumpy}
+    \title{SingleNet\_Numpy}
     
     
     
@@ -280,38 +280,11 @@
     
 
     
-    \subparagraph{思考}\label{ux601dux8003}
+    \paragraph{单隐层的神经网络-Numpy}\label{ux5355ux9690ux5c42ux7684ux795eux7ecfux7f51ux7edc-numpy}
+
+\subparagraph{思路}\label{ux601dux8def}
 
 \begin{itemize}
-\tightlist
-\item
-  从零搭建一个神经网络模型
-\item
-  从感知机开始写起，一步步捋清神经网络的结构
-\item
-  激活函数怎么写、采用何种损失函数
-\item
-  前向传播怎么写、后向传播又怎么写,权值如何迭代更新
-\end{itemize}
-
-    \subparagraph{理论}\label{ux7406ux8bba}
-
-\begin{itemize}
-\tightlist
-\item
-  感知机模型、神经网络
-\item
-  神经网络中的输入层、隐藏层、输出层、权重与偏置
-\item
-  激活函数、损失函数、前向传播、反向传播、
-\item
-  权值更新、梯度下降、微积分中的链式求导、方向梯度
-\end{itemize}
-
-    \subparagraph{方法}\label{ux65b9ux6cd5}
-
-\begin{itemize}
-\tightlist
 \item
   定义网络结构（指定输出层、隐藏层、输出层的大小）
 \item
@@ -320,285 +293,240 @@
   循环操作：执行前向传播/计算损失/执行后向传播/权值更新
 \end{itemize}
 
+    \begin{figure}
+\centering
+\includegraphics{attachment:image.png}
+\caption{image.png}
+\end{figure}
+
+    \subparagraph{网络结构的函数}\label{ux7f51ux7edcux7ed3ux6784ux7684ux51fdux6570}
+
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}3}]:} \PY{c+c1}{\PYZsh{} 定义激活函数}
-        \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
-        \PY{k}{def} \PY{n+nf}{sigmod}\PY{p}{(}\PY{n}{x}\PY{p}{)}\PY{p}{:}
-            \PY{k}{return} \PY{l+m+mi}{1}\PY{o}{/}\PY{p}{(}\PY{l+m+mi}{1}\PY{o}{+}\PY{n}{np}\PY{o}{.}\PY{n}{exp}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{x}\PY{p}{)}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}7}]:} \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
         
-        \PY{n}{sigmod}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}
+        \PY{k}{def} \PY{n+nf}{layer\PYZus{}sizes}\PY{p}{(}\PY{n}{X}\PY{p}{,}\PY{n}{Y}\PY{p}{)}\PY{p}{:}
+            \PY{n}{n\PYZus{}x}\PY{o}{=}\PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}   \PY{c+c1}{\PYZsh{} size of input layer}
+            \PY{n}{n\PYZus{}h}\PY{o}{=}\PY{l+m+mi}{4}           \PY{c+c1}{\PYZsh{} size of hidden layer}
+            \PY{n}{n\PYZus{}y}\PY{o}{=}\PY{n}{Y}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{c+c1}{\PYZsh{} size of output layer}
+            \PY{k}{return} \PY{p}{(}\PY{n}{n\PYZus{}x}\PY{p}{,}\PY{n}{n\PYZus{}h}\PY{p}{,}\PY{n}{n\PYZus{}y}\PY{p}{)}
 \end{Verbatim}
 
 
-\begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}3}]:} 0.9525741268224334
-\end{Verbatim}
-            
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}18}]:} \PY{c+c1}{\PYZsh{} 模型参数初始化\PYZhy{}权值、偏置\PYZhy{}w,b}
-         
-         \PY{k}{def} \PY{n+nf}{initilize\PYZus{}with\PYZus{}zeros}\PY{p}{(}\PY{n}{dim}\PY{p}{)}\PY{p}{:}
-             \PY{n}{w}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{p}{(}\PY{n}{dim}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}
-             \PY{n}{b}\PY{o}{=}\PY{l+m+mf}{4.0}
-         \PY{c+c1}{\PYZsh{}     assert(w.shape==(dim,1))}
-         \PY{c+c1}{\PYZsh{}     assert(isinstance(b,float) or isinstance(b,int))}
-             \PY{k}{return} \PY{n}{w}\PY{p}{,}\PY{n}{b}
-         \PY{n}{initilize\PYZus{}with\PYZus{}zeros}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}   
-\end{Verbatim}
+    \subparagraph{初始化模型参数}\label{ux521dux59cbux5316ux6a21ux578bux53c2ux6570}
 
-
-\begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}18}]:} (array([[0.],
-                 [0.],
-                 [0.]]), 4.0)
-\end{Verbatim}
-            
-    \begin{itemize}
+\begin{itemize}
 \tightlist
 \item
-  模型的主体部分
+  W1 为输入层到隐层的权重数组
 \item
-  前向传播和计算损失、反向传播和权值更新
+  b1 为输入层到隐层的偏置数组
 \item
-  也是神经网络训练过程中每一次需要迭代的部分
+  W2 为隐层到输出层的权重数组
 \item
-  前向传播简单而言就是计算预测 y 的过程
-\item
-  后向传播则是根据预测值和实际值之间的误差不断往回推更新权值和偏置的过程
-\end{itemize}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{itemize}
-\tightlist
-\item
-  定义一个大的前向传播函数
-\item
-  预测值y为模型从输入到经过激活函数处理后的输出的结果
-\item
-  损失函数我们采用交叉熵损失
+  b2 为隐层到输出层的偏置数组
 \end{itemize}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}61}]:} \PY{c+c1}{\PYZsh{} 前向传播的编写思路：}
-         \PY{c+c1}{\PYZsh{} 激活函数直接表示感知机输出的预测值}
-         \PY{c+c1}{\PYZsh{} 定义交叉熵损失函数计算了损失}
-         \PY{c+c1}{\PYZsh{} 损失函数计算了权值 w 和偏置 b的梯度}
-         \PY{c+c1}{\PYZsh{} 参数梯度结果以字典和损失作为函数输出返回}
-         
-         \PY{c+c1}{\PYZsh{} 从数组的形状中删除单维度条目，即把shape中为1的维度去掉}
-         \PY{c+c1}{\PYZsh{} 用法：numpy.squeeze(a,axis = None)}
-         
-         \PY{k}{def} \PY{n+nf}{propagate}\PY{p}{(}\PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{p}{,}\PY{n}{X}\PY{p}{,}\PY{n}{Y}\PY{p}{)}\PY{p}{:}
-             \PY{n}{m}\PY{o}{=}\PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
-             \PY{n}{y}\PY{o}{=}\PY{n}{sigmoid}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{w}\PY{o}{.}\PY{n}{T}\PY{p}{,}\PY{n}{X}\PY{p}{)}\PY{o}{+}\PY{n}{b}\PY{p}{)}
-             \PY{n}{cost}\PY{o}{=}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{o}{/}\PY{n}{m}\PY{o}{*}\PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n}{Y}\PY{o}{*}\PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{y}\PY{p}{)}\PY{o}{+}\PY{p}{(}\PY{l+m+mi}{1}\PY{o}{\PYZhy{}}\PY{n}{Y}\PY{p}{)}\PY{o}{*}\PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{l+m+mi}{1}\PY{o}{\PYZhy{}}\PY{n}{y}\PY{p}{)}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}22}]:} \PY{k}{def} \PY{n+nf}{initialize\PYZus{}parameters}\PY{p}{(}\PY{n}{n\PYZus{}x}\PY{p}{,}\PY{n}{n\PYZus{}h}\PY{p}{,}\PY{n}{b\PYZus{}y}\PY{p}{)}\PY{p}{:}
+             \PY{n}{W1}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{randn}\PY{p}{(}\PY{n}{n\PYZus{}h}\PY{p}{,}\PY{n}{n\PYZus{}x}\PY{p}{)}\PY{o}{*}\PY{l+m+mf}{0.01}   \PY{c+c1}{\PYZsh{} 输入层 \PYZhy{}\PYZhy{} 隐层}
+             \PY{n+nb}{print}\PY{p}{(}\PY{n}{W1}\PY{p}{)}
+             \PY{n}{b1}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{p}{(}\PY{n}{n\PYZus{}h}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}               \PY{c+c1}{\PYZsh{} 输入层 \PYZhy{}\PYZhy{} 隐层}
+             \PY{n}{W2}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{randn}\PY{p}{(}\PY{n}{n\PYZus{}y}\PY{p}{,}\PY{n}{n\PYZus{}h}\PY{p}{)}\PY{o}{*}\PY{l+m+mf}{0.01}   \PY{c+c1}{\PYZsh{} 隐层 \PYZhy{}\PYZhy{}\PYZhy{} 输出层 }
+             \PY{n+nb}{print}\PY{p}{(}\PY{n}{W2}\PY{p}{)}
+             \PY{n}{b2}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{n}{n\PYZus{}y}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{)}                 \PY{c+c1}{\PYZsh{} 隐层 \PYZhy{}\PYZhy{}\PYZhy{} 输出层 }
              
-             \PY{n}{dw}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{X}\PY{p}{,}\PY{p}{(}\PY{n}{y}\PY{o}{\PYZhy{}}\PY{n}{Y}\PY{p}{)}\PY{o}{.}\PY{n}{T}\PY{p}{)}\PY{o}{/}\PY{n}{m}
-             \PY{n}{db}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n}{y}\PY{o}{\PYZhy{}}\PY{n}{Y}\PY{p}{)}\PY{o}{/}\PY{n}{m}
-             \PY{k}{assert}\PY{p}{(}\PY{n}{dw}\PY{o}{.}\PY{n}{shape}\PY{o}{==}\PY{n}{w}\PY{o}{.}\PY{n}{shape}\PY{p}{)}
-             \PY{k}{assert}\PY{p}{(}\PY{n}{db}\PY{o}{.}\PY{n}{dtype}\PY{o}{==}\PY{n+nb}{float}\PY{p}{)}
+             \PY{k}{assert}\PY{p}{(}\PY{n}{W1}\PY{o}{.}\PY{n}{shape}\PY{o}{==}\PY{p}{(}\PY{n}{n\PYZus{}h}\PY{p}{,}\PY{n}{n\PYZus{}x}\PY{p}{)}\PY{p}{)}
+             \PY{k}{assert}\PY{p}{(}\PY{n}{b1}\PY{o}{.}\PY{n}{shape}\PY{o}{==}\PY{p}{(}\PY{n}{n\PYZus{}h}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}
+             \PY{k}{assert}\PY{p}{(}\PY{n}{W2}\PY{o}{.}\PY{n}{shape}\PY{o}{==}\PY{p}{(}\PY{n}{n\PYZus{}y}\PY{p}{,}\PY{n}{n\PYZus{}h}\PY{p}{)}\PY{p}{)}
+             \PY{k}{assert}\PY{p}{(}\PY{n}{b2}\PY{o}{.}\PY{n}{shape}\PY{o}{==}\PY{p}{(}\PY{n}{n\PYZus{}y}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}
              
-             \PY{n}{cost}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{squeeze}\PY{p}{(}\PY{n}{cost}\PY{p}{)}
-             \PY{k}{assert}\PY{p}{(}\PY{n}{cost}\PY{o}{.}\PY{n}{shape}\PY{o}{==}\PY{p}{(}\PY{p}{)}\PY{p}{)}
-             
-             \PY{n}{grads}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dw}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{n}{dw}\PY{p}{,}
-                   \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{db}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:}\PY{n}{db}\PY{p}{\PYZcb{}}
-             
-             \PY{k}{return} \PY{n}{grads}\PY{p}{,} \PY{n}{cost}
-\end{Verbatim}
-
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{itemize}
-\tightlist
-\item
-  模型学习速度：学习率； 偏导值；
-\item
-  偏导值的大小取决于样本、模型错误程度；
-\item
-  逻辑函数得到概率，交叉熵作损失函数时，模型效果差学习速度较快
-\item
-  sigmoid(softmax)+cross-entropy loss 擅长于学习类间的信息
-\item
-  采用了类间竞争机制，只关心正确标签预测概率的准确性，忽略其他非正确标签的差异，导致学习到的特征比较散。优化：对softmax进行改进，如L-Softmax、SM-Softmax、AM-Softmax等
-\end{itemize}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{figure}
-\centering
-\includegraphics{attachment:image.png}
-\caption{image.png}
-\end{figure}
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}49}]:} \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
-         \PY{c+c1}{\PYZsh{} x = np.array([[[0,1], [1,2], [2,3]],[[0,1], [1,2], [2,3]]])}
-         \PY{n}{x} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{array}\PY{p}{(}\PY{p}{[}\PY{p}{[}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{,} \PY{p}{[}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+m+mi}{3}\PY{p}{]}\PY{p}{]}\PY{p}{]}\PY{p}{)}
-         \PY{n+nb}{print}\PY{p}{(}\PY{n}{x}\PY{p}{)}
-          
-         \PY{n+nb}{print}\PY{p}{(}\PY{n}{x}\PY{o}{.}\PY{n}{shape}\PY{p}{)}
-         \PY{n+nb}{print}\PY{p}{(}\PY{n}{x}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
-         
-         \PY{n}{d} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{squeeze}\PY{p}{(}\PY{n}{x}\PY{p}{)}   \PY{c+c1}{\PYZsh{} 从数组的形状中删除单维条目，即把shape中为1的维度去掉}
-         \PY{n+nb}{print}\PY{p}{(}\PY{n}{d}\PY{o}{.}\PY{n}{shape}\PY{p}{)}
+             \PY{n}{parameters} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{W1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{W1}\PY{p}{,} 
+                           \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{b1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{b1}\PY{p}{,}                 
+                           \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{W2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{W2}\PY{p}{,}                  
+                           \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{b2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{b2}\PY{p}{\PYZcb{}}   
+                            
+             \PY{k}{return} \PY{n}{parameters}
+                    
+         \PY{c+c1}{\PYZsh{} Test        }
+         \PY{n}{W1}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{randn}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{)}\PY{o}{*}\PY{l+m+mf}{0.01}   \PY{c+c1}{\PYZsh{} 输入层 \PYZhy{}\PYZhy{} 隐层}
+         \PY{n+nb}{print}\PY{p}{(}\PY{n}{W1}\PY{p}{)}
+         \PY{n}{b1}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}               \PY{c+c1}{\PYZsh{} 输入层 \PYZhy{}\PYZhy{} 隐层}
+         \PY{n+nb}{print}\PY{p}{(}\PY{n}{b1}\PY{p}{)}
+         \PY{n}{W2}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{randn}\PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{4}\PY{p}{)}\PY{o}{*}\PY{l+m+mf}{0.01}   \PY{c+c1}{\PYZsh{} 隐层 \PYZhy{}\PYZhy{}\PYZhy{} 输出层 }
+         \PY{n+nb}{print}\PY{p}{(}\PY{n}{W2}\PY{p}{)}
+         \PY{n}{b2}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,}\PY{l+m+mi}{4}\PY{p}{)}\PY{p}{)}
+         \PY{n+nb}{print}\PY{p}{(}\PY{n}{b2}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-[[[0 1]
-  [1 2]
-  [2 3]]]
-(1, 3, 2)
-3
-(3, 2)
+[[-0.00444408 -0.00432438]
+ [-0.00276615 -0.00320031]
+ [-0.00640446 -0.01151193]
+ [ 0.0071295   0.00149226]]
+[[0.]
+ [0.]
+ [0.]
+ [0.]]
+[[ 0.02275661  0.00487254 -0.01029269  0.01172819]]
+[[0. 0. 0. 0.]]
 
     \end{Verbatim}
 
-    \begin{itemize}
-\item
-  backward\_propagation
-\item
-  计算每一步的当前损失 根据损失对权值进行更新
-\item
-  先是建立了一个损失列表容器
-\item
-  将前一步定义的前向传播函数放进去执行迭代操作
-\item
-  计算每一步的当前损失和梯度
-\item
-  利用梯度下降法对权值进行更新
-\item
-  用字典封装迭代结束时的参数和梯度进行返回
-\end{itemize}
+    \begin{figure}
+\centering
+\includegraphics{attachment:image.png}
+\caption{image.png}
+\end{figure}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}52}]:} \PY{k}{def} \PY{n+nf}{backward\PYZus{}propagation}\PY{p}{(}\PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{p}{,}\PY{n}{X}\PY{p}{,}\PY{n}{Y}\PY{p}{,}\PY{n}{num\PYZus{}iterations}\PY{p}{,}\PY{n}{learning\PYZus{}rate}\PY{p}{,}\PY{n}{print\PYZus{}cost}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}\PY{p}{:}
-             \PY{n}{cost}\PY{o}{=}\PY{p}{[}\PY{p}{]}
-             \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{num\PYZus{}iterations}\PY{p}{)}\PY{p}{:}
-                 \PY{n}{grad}\PY{p}{,}\PY{n}{cost}\PY{o}{=}\PY{n}{propagate}\PY{p}{(}\PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{p}{,}\PY{n}{X}\PY{p}{,}\PY{n}{Y}\PY{p}{)}
-                 
-                 \PY{n}{dw}\PY{o}{=}\PY{n}{grad}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dw}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
-                 \PY{n}{db}\PY{o}{=}\PY{n}{grad}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{db}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
-                 
-                 \PY{n}{w}\PY{o}{=}\PY{n}{w}\PY{o}{\PYZhy{}}\PY{n}{learning\PYZus{}rate}\PY{o}{*}\PY{n}{dw}
-                 \PY{n}{b}\PY{o}{=}\PY{n}{b}\PY{o}{\PYZhy{}}\PY{n}{learning\PYZus{}rate}\PY{o}{*}\PY{n}{db}
-                 \PY{k}{if} \PY{n}{i}\PY{o}{\PYZpc{}}\PY{k}{100}==0:
-                     \PY{n}{cost}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{cost}\PY{p}{)}
-                 \PY{k}{if} \PY{n}{print\PYZus{}cost} \PY{o+ow}{and} \PY{n}{i}\PY{o}{\PYZpc{}}\PY{k}{100}==0:
-                     \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{cost after iteration }\PY{l+s+si}{\PYZpc{}i}\PY{l+s+s2}{: }\PY{l+s+si}{\PYZpc{}f}\PY{l+s+s2}{\PYZdq{}} \PY{o}{\PYZpc{}}\PY{p}{(}\PY{n}{i}\PY{p}{,}\PY{n}{cost}\PY{p}{)}\PY{p}{)}
-             \PY{n}{params}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{w}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{w}\PY{p}{,}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{b}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{b}\PY{p}{\PYZcb{}}
-             \PY{n}{grads}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{dw}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{dw}\PY{p}{,}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{db}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{db}\PY{p}{\PYZcb{}}
-             \PY{k}{return} \PY{n}{params}\PY{p}{,}\PY{n}{grads}\PY{p}{,}\PY{n}{costs}
-             
+{\color{incolor}In [{\color{incolor}24}]:} \PY{k}{def} \PY{n+nf}{forward\PYZus{}propagation}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{parameters}\PY{p}{)}\PY{p}{:}
+             \PY{c+c1}{\PYZsh{} Retrieve each parameter from the dictionary \PYZdq{}parameters\PYZdq{}}
+             \PY{n}{W1} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{b1} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{b1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{W2} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{b2} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{b2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} Implement Forward Propagation to calculate A2 (probabilities)}
+             \PY{n}{Z1} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{W1}\PY{p}{,} \PY{n}{X}\PY{p}{)} \PY{o}{+} \PY{n}{b1}
+             \PY{n}{A1} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{tanh}\PY{p}{(}\PY{n}{Z1}\PY{p}{)}
+             \PY{n}{Z2} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{W2}\PY{p}{,} \PY{n}{Z1}\PY{p}{)} \PY{o}{+} \PY{n}{b2}
+             \PY{n}{A2} \PY{o}{=} \PY{n}{sigmoid}\PY{p}{(}\PY{n}{Z2}\PY{p}{)}    
+             \PY{k}{assert}\PY{p}{(}\PY{n}{A2}\PY{o}{.}\PY{n}{shape} \PY{o}{==} \PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{p}{)}
+         
+         
+             \PY{n}{cache} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Z1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{Z1}\PY{p}{,}                   
+                      \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{A1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{A1}\PY{p}{,}                   
+                      \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Z2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{Z2}\PY{p}{,}                  
+                      \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{A2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{A2}\PY{p}{\PYZcb{}}    
+         
+             \PY{k}{return} \PY{n}{A2}\PY{p}{,} \PY{n}{cache}
+\end{Verbatim}
+
+
+    \begin{figure}
+\centering
+\includegraphics{attachment:image.png}
+\caption{image.png}
+\end{figure}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}25}]:} \PY{k}{def} \PY{n+nf}{compute\PYZus{}cost}\PY{p}{(}\PY{n}{A2}\PY{p}{,} \PY{n}{Y}\PY{p}{,} \PY{n}{parameters}\PY{p}{)}\PY{p}{:}
+             \PY{n}{m} \PY{o}{=} \PY{n}{Y}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{c+c1}{\PYZsh{} number of example}
+             \PY{c+c1}{\PYZsh{} Compute the cross\PYZhy{}entropy cost}
+             \PY{n}{logprobs} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{multiply}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{A2}\PY{p}{)}\PY{p}{,}\PY{n}{Y}\PY{p}{)} \PY{o}{+} \PY{n}{np}\PY{o}{.}\PY{n}{multiply}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{l+m+mi}{1}\PY{o}{\PYZhy{}}\PY{n}{A2}\PY{p}{)}\PY{p}{,} \PY{l+m+mi}{1}\PY{o}{\PYZhy{}}\PY{n}{Y}\PY{p}{)}
+             \PY{n}{cost} \PY{o}{=} \PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{o}{/}\PY{n}{m} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n}{logprobs}\PY{p}{)}
+             \PY{n}{cost} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{squeeze}\PY{p}{(}\PY{n}{cost}\PY{p}{)}     \PY{c+c1}{\PYZsh{} makes sure cost is the dimension we expect.}
+         
+             \PY{k}{assert}\PY{p}{(}\PY{n+nb}{isinstance}\PY{p}{(}\PY{n}{cost}\PY{p}{,} \PY{n+nb}{float}\PY{p}{)}\PY{p}{)}    
+             \PY{k}{return} \PY{n}{cost}
+\end{Verbatim}
+
+
+    \begin{figure}
+\centering
+\includegraphics{attachment:image.png}
+\caption{image.png}
+\end{figure}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}27}]:} \PY{k}{def} \PY{n+nf}{backward\PYZus{}propagation}\PY{p}{(}\PY{n}{parameters}\PY{p}{,} \PY{n}{cache}\PY{p}{,} \PY{n}{X}\PY{p}{,} \PY{n}{Y}\PY{p}{)}\PY{p}{:}
+             \PY{n}{m} \PY{o}{=} \PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} First, retrieve W1 and W2 from the dictionary \PYZdq{}parameters\PYZdq{}.}
+             \PY{n}{W1} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{W2} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} Retrieve also A1 and A2 from dictionary \PYZdq{}cache\PYZdq{}.}
+             \PY{n}{A1} \PY{o}{=} \PY{n}{cache}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{A1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{A2} \PY{o}{=} \PY{n}{cache}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{A2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} Backward propagation: calculate dW1, db1, dW2, db2. }
+             \PY{n}{dZ2} \PY{o}{=} \PY{n}{A2}\PY{o}{\PYZhy{}}\PY{n}{Y}
+             \PY{n}{dW2} \PY{o}{=} \PY{l+m+mi}{1}\PY{o}{/}\PY{n}{m} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{dZ2}\PY{p}{,} \PY{n}{A1}\PY{o}{.}\PY{n}{T}\PY{p}{)}
+             \PY{n}{db2} \PY{o}{=} \PY{l+m+mi}{1}\PY{o}{/}\PY{n}{m} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n}{dZ2}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{keepdims}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+             \PY{n}{dZ1} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{W2}\PY{o}{.}\PY{n}{T}\PY{p}{,} \PY{n}{dZ2}\PY{p}{)}\PY{o}{*}\PY{p}{(}\PY{l+m+mi}{1}\PY{o}{\PYZhy{}}\PY{n}{np}\PY{o}{.}\PY{n}{power}\PY{p}{(}\PY{n}{A1}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{)}\PY{p}{)}
+             \PY{n}{dW1} \PY{o}{=} \PY{l+m+mi}{1}\PY{o}{/}\PY{n}{m} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{dZ1}\PY{p}{,} \PY{n}{X}\PY{o}{.}\PY{n}{T}\PY{p}{)}
+             \PY{n}{db1} \PY{o}{=} \PY{l+m+mi}{1}\PY{o}{/}\PY{n}{m} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n}{dZ1}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{keepdims}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+         
+             \PY{n}{grads} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{dW1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{dW1}\PY{p}{,}
+                      \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{db1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{db1}\PY{p}{,}                      
+                      \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{dW2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{dW2}\PY{p}{,}             
+                      \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{db2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{db2}\PY{p}{\PYZcb{}}   
+             \PY{k}{return} \PY{n}{grads}
+\end{Verbatim}
+
+
+    \begin{figure}
+\centering
+\includegraphics{attachment:image.png}
+\caption{image.png}
+\end{figure}
+
+    \begin{figure}
+\centering
+\includegraphics{attachment:image.png}
+\caption{image.png}
+\end{figure}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}28}]:} \PY{k}{def} \PY{n+nf}{update\PYZus{}parameters}\PY{p}{(}\PY{n}{parameters}\PY{p}{,} \PY{n}{grads}\PY{p}{,} \PY{n}{learning\PYZus{}rate} \PY{o}{=} \PY{l+m+mf}{1.2}\PY{p}{)}\PY{p}{:}
+             \PY{c+c1}{\PYZsh{} Retrieve each parameter from the dictionary \PYZdq{}parameters\PYZdq{}}
+             \PY{n}{W1} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{b1} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{b1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{W2} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{b2} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{b2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} Retrieve each gradient from the dictionary \PYZdq{}grads\PYZdq{}}
+             \PY{n}{dW1} \PY{o}{=} \PY{n}{grads}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dW1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{db1} \PY{o}{=} \PY{n}{grads}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{db1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{dW2} \PY{o}{=} \PY{n}{grads}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dW2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{db2} \PY{o}{=} \PY{n}{grads}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{db2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} Update rule for each parameter}
+             \PY{n}{W1} \PY{o}{\PYZhy{}}\PY{o}{=} \PY{n}{dW1} \PY{o}{*} \PY{n}{learning\PYZus{}rate}
+             \PY{n}{b1} \PY{o}{\PYZhy{}}\PY{o}{=} \PY{n}{db1} \PY{o}{*} \PY{n}{learning\PYZus{}rate}
+             \PY{n}{W2} \PY{o}{\PYZhy{}}\PY{o}{=} \PY{n}{dW2} \PY{o}{*} \PY{n}{learning\PYZus{}rate}
+             \PY{n}{b2} \PY{o}{\PYZhy{}}\PY{o}{=} \PY{n}{db2} \PY{o}{*} \PY{n}{learning\PYZus{}rate}
+         
+             \PY{n}{parameters} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{W1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{W1}\PY{p}{,} 
+                           \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{b1}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{b1}\PY{p}{,}            
+                           \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{W2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{W2}\PY{p}{,}   
+                           \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{b2}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{n}{b2}\PY{p}{\PYZcb{}}    
+             \PY{k}{return} \PY{n}{parameters}
 \end{Verbatim}
 
 
     \begin{itemize}
 \tightlist
 \item
-  预测函数 predict，将模型的概率输出转化为0/1值
-\end{itemize}
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}55}]:} \PY{k}{def} \PY{n+nf}{predict}\PY{p}{(}\PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{p}{,}\PY{n}{X}\PY{p}{)}\PY{p}{:}
-             \PY{n}{m}\PY{o}{=}\PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
-             \PY{n}{Y\PYZus{}prediction}\PY{o}{=}\PY{n}{np}\PY{o}{.}\PY{n}{zeros}\PY{p}{(}\PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,}\PY{n}{m}\PY{p}{)}\PY{p}{)}
-             \PY{n}{w}\PY{o}{=}\PY{n}{w}\PY{o}{.}\PY{n}{reshape}\PY{p}{(}\PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,}\PY{l+m+mi}{1}\PY{p}{)}
-             \PY{n}{A}\PY{o}{=}\PY{n}{sigmoid}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{dot}\PY{p}{(}\PY{n}{w}\PY{o}{.}\PY{n}{T}\PY{p}{,}\PY{n}{X}\PY{p}{)}\PY{o}{+}\PY{n}{b}\PY{p}{)}
-             \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{A}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{p}{:}
-                 \PY{k}{if} \PY{n}{A}\PY{p}{[}\PY{p}{:}\PY{n}{i}\PY{p}{]}\PY{o}{\PYZgt{}}\PY{l+m+mf}{0.5}\PY{p}{:}
-                     \PY{n}{Y\PYZus{}prediction}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{n}{i}\PY{p}{]}\PY{o}{=}\PY{l+m+mi}{1}
-                 \PY{k}{else}\PY{p}{:}
-                     \PY{n}{Y\PYZus{}prediction}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{n}{i}\PY{p}{]}\PY{o}{=}\PY{l+m+mi}{0}
-             \PY{k}{assert}\PY{p}{(}\PY{n}{Y\PYZus{}prediction}\PY{o}{.}\PY{n}{shape}\PY{o}{==}\PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,}\PY{n}{m}\PY{p}{)}\PY{p}{)}
-             \PY{k}{return} \PY{n}{Y\PYZus{}prediction}
-\end{Verbatim}
-
-
-    \begin{itemize}
-\tightlist
+  【以上】前向传播-计算损失-反向传播-权值更新
 \item
-  函数封装
+  【如下】模块组合-神经网络模型
 \end{itemize}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}64}]:} \PY{k}{def} \PY{n+nf}{model}\PY{p}{(}\PY{n}{X\PYZus{}train}\PY{p}{,} \PY{n}{Y\PYZus{}train}\PY{p}{,} \PY{n}{X\PYZus{}test}\PY{p}{,} \PY{n}{Y\PYZus{}test}\PY{p}{,} \PY{n}{num\PYZus{}iterations}\PY{o}{=}\PY{l+m+mi}{2000}\PY{p}{,} \PY{n}{learning\PYZus{}rate}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,} \PY{n}{print\PYZus{}cost}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}\PY{p}{:}
-             \PY{c+c1}{\PYZsh{} initialize}
-             \PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{o}{=}\PY{n}{initialize\PYZus{}with\PYZus{}zeros}\PY{p}{(}\PY{n}{X\PYZus{}train}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)} \PY{c+c1}{\PYZsh{} Gradient descent}
-             \PY{c+c1}{\PYZsh{} Retrieve parameters w and b from dictionary \PYZdq{}parameters\PYZdq{}}
-             \PY{n}{parameters}\PY{p}{,}\PY{n}{grads}\PY{p}{,}\PY{n}{costs}\PY{o}{=}\PY{n}{backwize}\PY{p}{(}\PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{p}{,}\PY{n}{X\PYZus{}train}\PY{p}{,}\PY{n}{Y\PYZus{}train}\PY{p}{,}\PY{n}{num\PYZus{}iterations}\PY{p}{,} \PY{n}{learning\PYZus{}rate}\PY{p}{,}\PY{n}{print\PYZus{}cost}\PY{p}{)}
-             \PY{n}{w}\PY{o}{=}\PY{n}{parameters}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{w}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}
-             \PY{n}{b}\PY{o}{=}\PY{n}{parameters}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{b}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}
-             \PY{n}{Y\PYZus{}prediction\PYZus{}train}\PY{o}{=}\PY{n}{predict}\PY{p}{(}\PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{p}{,}\PY{n}{X\PYZus{}train}\PY{p}{)}
-             \PY{n}{Y\PYZus{}prediction\PYZus{}test}\PY{o}{=}\PY{n}{predict}\PY{p}{(}\PY{n}{w}\PY{p}{,}\PY{n}{b}\PY{p}{,}\PY{n}{X\PYZus{}test}\PY{p}{)}
-             \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{train accuracy: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZpc{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{l+m+mi}{100}\PY{o}{\PYZhy{}}\PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{abs}\PY{p}{(}\PY{n}{Y\PYZus{}prediction\PYZus{}train}\PY{o}{\PYZhy{}}\PY{n}{Y\PYZus{}train}\PY{p}{)}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{100}\PY{p}{)}\PY{p}{)}
-             \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{test accuracy:}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZpc{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{l+m+mi}{100}\PY{o}{\PYZhy{}}\PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{abs}\PY{p}{(}\PY{n}{Y\PYZus{}prediction\PYZus{}test}\PY{o}{\PYZhy{}}\PY{n}{Y\PYZus{}test}\PY{p}{)}\PY{p}{)}\PY{o}{*}\PY{l+m+mi}{100}\PY{p}{)}\PY{p}{)}
-             
-             \PY{n}{d}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{costs}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{costs}\PY{p}{,}
-               \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Y\PYZus{}prediction\PYZus{}test}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{Y\PYZus{}prediction\PYZus{}test}\PY{p}{,}
-               \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Y\PYZus{}prediction\PYZus{}train}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{Y\PYZus{}prediction\PYZus{}train}\PY{p}{,}
-               \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{w}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{w}\PY{p}{,}
-               \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{b}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{b}\PY{p}{,}
-               \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{learning\PYZus{}rate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{learning\PYZus{}rate}\PY{p}{,}
-               \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{num\PYZus{}iterations}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{n}{num\PYZus{}iterations}\PY{p}{\PYZcb{}}
-             \PY{k}{return} \PY{n}{d}
-             
+{\color{incolor}In [{\color{incolor}30}]:} \PY{k}{def} \PY{n+nf}{nn\PYZus{}model}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{Y}\PY{p}{,} \PY{n}{n\PYZus{}h}\PY{p}{,} \PY{n}{num\PYZus{}iterations} \PY{o}{=} \PY{l+m+mi}{10000}\PY{p}{,} \PY{n}{print\PYZus{}cost}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}\PY{p}{:}
+             \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{seed}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}
+             \PY{n}{n\PYZus{}x} \PY{o}{=} \PY{n}{layer\PYZus{}sizes}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{Y}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+             \PY{n}{n\PYZus{}y} \PY{o}{=} \PY{n}{layer\PYZus{}sizes}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{Y}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} Initialize parameters, then retrieve W1, b1, W2, b2. Inputs: \PYZdq{}n\PYZus{}x, n\PYZus{}h, n\PYZus{}y\PYZdq{}. Outputs = \PYZdq{}W1, b1, W2, b2, parameters\PYZdq{}.}
+             \PY{n}{parameters} \PY{o}{=} \PY{n}{initialize\PYZus{}parameters}\PY{p}{(}\PY{n}{n\PYZus{}x}\PY{p}{,} \PY{n}{n\PYZus{}h}\PY{p}{,} \PY{n}{n\PYZus{}y}\PY{p}{)}
+             \PY{n}{W1} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{b1} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{b1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{W2} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{W2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+             \PY{n}{b2} \PY{o}{=} \PY{n}{parameters}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{b2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}    
+             \PY{c+c1}{\PYZsh{} Loop (gradient descent)}
+             \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{num\PYZus{}iterations}\PY{p}{)}\PY{p}{:}        
+             \PY{c+c1}{\PYZsh{} Forward propagation. Inputs: \PYZdq{}X, parameters\PYZdq{}. Outputs: \PYZdq{}A2, cache\PYZdq{}.}
+                 \PY{n}{A2}\PY{p}{,} \PY{n}{cache} \PY{o}{=} \PY{n}{forward\PYZus{}propagation}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{parameters}\PY{p}{)}        
+                 \PY{c+c1}{\PYZsh{} Cost function. Inputs: \PYZdq{}A2, Y, parameters\PYZdq{}. Outputs: \PYZdq{}cost\PYZdq{}.}
+                 \PY{n}{cost} \PY{o}{=} \PY{n}{compute\PYZus{}cost}\PY{p}{(}\PY{n}{A2}\PY{p}{,} \PY{n}{Y}\PY{p}{,} \PY{n}{parameters}\PY{p}{)}        
+                 \PY{c+c1}{\PYZsh{} Backpropagation. Inputs: \PYZdq{}parameters, cache, X, Y\PYZdq{}. Outputs: \PYZdq{}grads\PYZdq{}.}
+                 \PY{n}{grads} \PY{o}{=} \PY{n}{backward\PYZus{}propagation}\PY{p}{(}\PY{n}{parameters}\PY{p}{,} \PY{n}{cache}\PY{p}{,} \PY{n}{X}\PY{p}{,} \PY{n}{Y}\PY{p}{)}        
+                 \PY{c+c1}{\PYZsh{} Gradient descent parameter update. Inputs: \PYZdq{}parameters, grads\PYZdq{}. Outputs: \PYZdq{}parameters\PYZdq{}.}
+                 \PY{n}{parameters} \PY{o}{=} \PY{n}{update\PYZus{}parameters}\PY{p}{(}\PY{n}{parameters}\PY{p}{,} \PY{n}{grads}\PY{p}{,} \PY{n}{learning\PYZus{}rate}\PY{o}{=}\PY{l+m+mf}{1.2}\PY{p}{)}        
+                 \PY{c+c1}{\PYZsh{} Print the cost every 1000 iterations}
+                 \PY{k}{if} \PY{n}{print\PYZus{}cost} \PY{o+ow}{and} \PY{n}{i} \PY{o}{\PYZpc{}} \PY{l+m+mi}{1000} \PY{o}{==} \PY{l+m+mi}{0}\PY{p}{:}            
+                     \PY{n+nb}{print} \PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Cost after iteration }\PY{l+s+si}{\PYZpc{}i}\PY{l+s+s2}{: }\PY{l+s+si}{\PYZpc{}f}\PY{l+s+s2}{\PYZdq{}} \PY{o}{\PYZpc{}}\PY{p}{(}\PY{n}{i}\PY{p}{,} \PY{n}{cost}\PY{p}{)}\PY{p}{)}    
+                     
+             \PY{k}{return} \PY{n}{parameters}
 \end{Verbatim}
 
-
-    参考文章：
-https://mp.weixin.qq.com/s?\_\_biz=MzI4ODY2NjYzMQ==\&mid=2247484153\&idx=1\&sn=cf3d17f6333855bfd20cbfa3a98bbbf4\&chksm=ec3ba791db4c2e878f72af92a76fcc91a832319da14befbc156bda0cf9c28f688df897c1a541\&scene=21\#wechat\_redirect
 
 
     % Add a bibliography block to the postdoc
